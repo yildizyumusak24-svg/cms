@@ -495,6 +495,36 @@ export interface ApiCityCity extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiMekanlarMekanlar extends Struct.CollectionTypeSchema {
+  collectionName: 'mekanlars';
+  info: {
+    displayName: 'Mekanlar';
+    pluralName: 'mekanlars';
+    singularName: 'mekanlar';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    Aciklama: Schema.Attribute.Blocks;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    Gorsel_URL: Schema.Attribute.String;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::mekanlar.mekanlar'
+    > &
+      Schema.Attribute.Private;
+    Mekan_Adi: Schema.Attribute.String;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiPlacePlace extends Struct.CollectionTypeSchema {
   collectionName: 'places';
   info: {
@@ -1075,6 +1105,7 @@ declare module '@strapi/strapi' {
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
       'api::city.city': ApiCityCity;
+      'api::mekanlar.mekanlar': ApiMekanlarMekanlar;
       'api::place.place': ApiPlacePlace;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
