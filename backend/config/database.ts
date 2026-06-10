@@ -1,55 +1,37 @@
-const path = require('path'); 
+import path from 'path';
 
-module.exports = ({ env }) => { 
+export default ({ env }: { env: any }) => {
+  // DATABASE_URL varsa postgres, yoksa sqlite seçer
+  const isPostgres = !!env('DATABASE_URL');
 
-const client = env('DATABASE_URL') ? 'postgres' : env('DATABASE_CLIENT', 'sqlite'); 
+  if (isPostgres) {
+    return {
+      connection: {
+        client: 'postgres',
+        connection: {
+          connectionString: env('DATABASE_URL'),
+          ssl: {
+            rejectUnauthorized: false, // Render PostgreSQL için kritik ayar
+          },
+        },
+        pool: {
+          min: env.int('DATABASE_POOL_MIN', 2),
+          max: env.int('DATABASE_POOL_MAX', 10),
+        },
+        acquireConnectionTimeout: env.int('DATABASE_CONNECTION_TIMEOUT', 60000),
+      },
+    };
+  }
 
-const connections = { 
-
-postgres: { 
-
-connection: { 
-
-connectionString: env('DATABASE_URL'), 
-
-ssl: { 
-
-rejectUnauthorized: false,  
-
-}, 
-
-}, 
-
-pool: { min: env.int('DATABASE_POOL_MIN', 2), max: env.int('DATABASE_POOL_MAX', 10) }, 
-
-}, 
-
-sqlite: { 
-
-  connection: { 
-
-filename: path.join(__dirname, '..', env('DATABASE_FILENAME', '.tmp/data.db')), 
-
-}, 
-
-useNullAsDefault: true, 
-
-}, 
-
-}; 
-
-return { 
-
-connection: { 
-
-client, 
-
-...connections[client], 
-
-acquireConnectionTimeout: env.int('DATABASE_CONNECTION_TIMEOUT', 60000), 
-
-}, 
-
-}; 
-
-}; 
+  // Lokal geliştirme ortamı için SQLite ayarları
+  return {
+    connection: {
+      client: 'sqlite',
+      connection: {
+        filename: path.join(__dirname, '..', env('DATABASE_FILENAME', '.tmp/data.db')),
+      },
+      useNullAsDefault: true,
+      acquireConnectionTimeout: env.int('DATABASE_CONNECTION_TIMEOUT', 60000),
+    },
+  };
+};
