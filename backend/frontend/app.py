@@ -18,15 +18,26 @@ client = OpenAI(
     base_url="https://api.groq.com/openai/v1",
     api_key=GROQ_API_KEY
 )
+# Arayüzü daha modern hale getiren küçük bir örnek
+st.markdown("""
+    <style>
+    .main { background-color: #f5f5f5; }
+    </style>
+    """, unsafe_allow_html=True)
+
+st.title("🌍 Kişisel Gezi Rehberim")
+st.sidebar.header("Ayarlar")
+sehir = st.sidebar.text_input("Şehir Girin:")
+# ... geri kalan kodlar aynı ...
 
 st.set_page_config(page_title="YZ Destekli Gezi Rehberi", layout="wide")
-st.markdown("<h1 style='text-align: center;'>🌍 YZ Destekli Gezi Rehberi</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center;'></h1>", unsafe_allow_html=True)
 
 # --- FONKSİYONLAR ---
 def veri_hazirla_ve_kaydet(sehir, mekan):
     prompt = f"{sehir} şehrindeki {mekan} hakkında Türkçe ve İngilizce detaylı bilgi yaz."
     response = client.chat.completions.create(
-        model="llama3-8b-8192", 
+        model="llama-3.3-70b-versatile", 
         messages=[{"role": "user", "content": prompt}]
     )
     icerik = response.choices[0].message.content

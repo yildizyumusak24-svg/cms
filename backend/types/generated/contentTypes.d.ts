@@ -480,6 +480,7 @@ export interface ApiCityCity extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     locale: Schema.Attribute.String;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::city.city'>;
+    mekanlar: Schema.Attribute.Relation<'manyToOne', 'api::mekanlar.mekanlar'>;
     places: Schema.Attribute.Relation<'oneToMany', 'api::place.place'>;
     publishedAt: Schema.Attribute.DateTime;
     shortInfo: Schema.Attribute.Blocks;
@@ -507,6 +508,7 @@ export interface ApiMekanlarMekanlar extends Struct.CollectionTypeSchema {
   };
   attributes: {
     Aciklama: Schema.Attribute.Blocks;
+    cities: Schema.Attribute.Relation<'oneToMany', 'api::city.city'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;

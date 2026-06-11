@@ -1,33 +1,46 @@
+import streamlit as st
 import requests
 
-# Mevcut token'ınla devam ediyoruz
-URL = "https://gezi-rehberi-g8t2.onrender.com"
-TOKEN = "3a35b1527c3a4e357f8ae991fd9de9e47203f6839b62579d318d41d1cb4d414c97699c14226ee82e43b16f525424b83ed6dd800e402592a48e3ed8d151dd9232b4c605b1eff213a1cd0f13d1299c7055008dced4c3d23f24b2d15c5a6e43efc251aa0059f582d2ea81f57c5fe668ad6f8b5ec7aaa2a4814d67eb998ed1d20767"
+# 1. Sayfa Ayarları
+st.set_page_config(page_title="Gezi Rehberim", layout="wide")
+st.title("🌍 Gezi Rehberi Uygulaması")
 
-headers = {
-    "Authorization": f"Bearer {TOKEN}",
-    "Content-Type": "application/json"
-}
+# 2. Strapi Bağlantı Ayarları
+# URL'yi kendi Strapi API adresinize göre kontrol edin
+# URL'yi geçici olarak şu şekilde değiştirip kaydedin
+API_URL = "http://localhost:1337/api/mekanlar" 
 
-def mekan_ekle(name, desc, city_id):
-    # En kritik değişiklik burası: İlişkiyi ID olarak değil, obje olarak gönderiyoruz.
-    # Eğer 'city' anahtarı hata verirse, bu sefer şemadaki API ismini kullanacağız.
-    payload = {
-        "data": {
-            "placeName": name,
-            "description": desc,
-            "city": city_id  # Strapi'nin çoğu versiyonu doğrudan ID'yi burada kabul eder
-        }
-    }
+# Sonra aşağıda response.json'u değil, tüm içeriği görelim:
+response = requests.get(API_URL)
+st.write("Gelen içerik:", response.text)
+def verileri_cek():
+    try:
+        response = requests.get(API_URL)
+        if response.status_code == 200:
+            return response.json().get("data", [])
+        else:
+            st.error(f"Sunucu hatası: {response.status_code}")
+            return None
+    except Exception as e:
+        st.error(f"Bağlantı hatası: {e}")
+        return None
+
+# 3. Veriyi Ekrana Basma
+mekanlar = verileri_cek()
+
+if mekanlar:
+    st.success(f"{len(mekanlar)} adet mekan başarıyla bulundu!")
     
-    response = requests.post(f"{URL}/api/places", headers=headers, json=payload)
-    
-    if response.status_code in [200, 201]:
-        print(f"✅ Başarılı: {name}")
-    else:
-        print(f"❌ HATA - {name}: {response.text}")
+    # Her bir mekanı kart şeklinde gösterelim
+    for mekan in mekanlar:
+        # Strapi'deki alan isimlerini buraya göre düzeltin (örneğin: attributes['isim'])
+        attr = mekan.get("attributes", {})
+        st.subheader(attr.get("isim", "İsimsiz Mekan"))
+        st.write(f"**Açıklama:** {attr.get('aciklama', 'Açıklama girilmemiş.')}")
+        st.divider()
+else:
+    st.warning("Henüz hiç mekan eklenmemiş veya API'ye ulaşılamıyor.")
 
-# İstanbul ve Rize için ID'leri 4 ve 5 olarak deniyoruz
-mekan_ekle("Ayasofya Camii", "Tarihi yapı", 4)
-mekan_ekle("Topkapı Sarayı", "Tarihi saray", 4)
-mekan_ekle("Zil Kale", "Karadeniz kalesi", 5)
+# 4. Debug (Hata Ayıklama) - Eğer hala boşsa buraya bak
+if st.checkbox("Ham veriyi gör (Debug)"):
+    st.json(mekanlar)

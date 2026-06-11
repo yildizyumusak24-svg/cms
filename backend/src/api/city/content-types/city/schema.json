@@ -58,6 +58,12 @@
           "localized": true
         }
       }
+    },
+    "mekanlar": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::mekanlar.mekanlar",
+      "inversedBy": "cities"
     }
   }
 }
